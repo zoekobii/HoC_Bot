@@ -1,1 +1,5 @@
-﻿{"token": "enter your token here. You can also add api keys and similar to pass through to your bot."}
+{
+   "token": "NjQxMDc4ODk4ODgwMTUxNTYz.Xdc1ww.A5CFvclmZLwduw2Dc8aH70jJo0g",
+   "description": "Bot description",
+   "challenges": "tasks_november_2019"
+}

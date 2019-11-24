@@ -2,6 +2,7 @@ import asyncio
 import datetime
 import json
 import logging
+import os
 from pathlib import Path
 
 import discord
@@ -9,8 +10,14 @@ from discord.ext import commands
 
 
 
+BASE_PATH = Path(__file__).parent
+# FILEPATH_DATA = os.path.join(DIR, 'data')
+# FILEPATH_COGS = os.path.join(DIR, 'cogs')
+
+
 def config_load():
-    with open('data/config.json', 'r', encoding='utf-8') as doc:
+    filename = BASE_PATH / r"data/config.json" 
+    with open(filename, 'r', encoding='utf-8') as doc:
         #  Please make sure encoding is correct, especially after editing the config file
         return json.load(doc)
 
@@ -70,7 +77,8 @@ class Bot(commands.Bot):
         """
         await self.wait_until_ready()
         await asyncio.sleep(1)  # ensure that on_ready has completed and finished printing
-        cogs = [x.stem for x in Path('cogs').glob('*.py')]
+        cog_scripts = (BASE_PATH / r"cogs").glob('*.py')
+        cogs = [x.stem for x in cog_scripts ]
         for extension in cogs:
             try:
                 self.load_extension(f'cogs.{extension}')
