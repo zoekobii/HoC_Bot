@@ -1,12 +1,16 @@
 {
-   012345 : {
-      "limits" : {
-         'scat' : 0.0,
-         'cbt' : 0.5,
-         'food' : 0.25,
-         'anal' : 1.0
-      },
-      'immunity' : 14,
-      'locked' : true,
-   }
+    "473376960114982922": {
+        "cur_challenge": "I Pledge to Eat All My Cum For Santa",
+        "discriminator": "2286",
+        "name": "MaidenSyn\ud83c\udf08\ud83e\udd84",
+        "nick": null,
+        "points": 0
+    },
+    "474075064069783552": {
+        "cur_challenge": null,
+        "discriminator": "2132",
+        "name": "Ruffiana",
+        "nick": null,
+        "points": 5
+    }
 }

@@ -1,0 +1,25 @@
+{
+   "authors": {
+      "maiden_syn" : {
+         "name": "MaidenSyn",
+         "discriminator": "2286",
+         "id" : "473376960114982922",
+         "url" : null,
+         "icon" : null
+      },
+      "amalgam" : {
+         "name": "Amalgam",
+         "discriminator": "3117",
+         "id" : "333816786581454849",
+         "url" : null,
+         "icon" : null
+      },
+      "ruffiana" : {
+         "name": "Ruffiana",
+         "discriminator": "2132",
+         "id" : "474075064069783552",
+         "url" : null,
+         "icon" : null
+      }
+   }
+}
