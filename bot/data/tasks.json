@@ -1,0 +1,19 @@
+{
+    "title": "JanBlueBallsary",
+    "host": "House of Chastity",
+    "year" : 2019,
+    "subtitle": "General challenge table",
+    "emoji": "lock",
+    "thumbnail":"https://media.discordapp.net/attachments/548034641085595650/548034836053622795/image0.jpg",
+    "description": "Posting challenge pics and videos encouraged as well as daily caged verification photos on discord & on twitter tag us @houseofchastity",
+    "tasks": [
+       {
+          "title": "New Year's Resolution!",
+          "author": "maiden_syn",
+          "emoji": "lock",
+          "description": "There are no challenges this month.  Stick to your New Year's resolution.  Use `!reward` for each day you stick to your New Year's resolution and `!punish` for each day you fail.",
+          "reward": null
+       }
+    ]
+ }
+ 

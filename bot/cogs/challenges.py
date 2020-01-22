@@ -1,4 +1,5 @@
 import json
+import logging
 from pathlib import Path
 import random
 import re
@@ -17,12 +18,16 @@ class Challenges(commands.Cog):
     PATH_DATA = PATH_BASE.parent
     PATH_USERS = PATH_DATA / 'data/users.json'
     PATH_AUTHORS = PATH_DATA / 'data/authors.json'
-    PATH_CHALLENGES = PATH_DATA / 'data/tasks_12_2019.json'
+
+    PATH_CHALLENGES = PATH_DATA / 'data/tasks.json'
+    PATH_REWARDS = PATH_DATA / 'data/rewards.json'
+    PATH_PUNISHMENTS = PATH_DATA / 'data/punishments.json'
 
     # CHAN_ID_PROOF =(488712787107774495  #HoC|#shameless_self_promotion
     CHAN_ID_PROOF = 651594746891862044    #HoC_Bot_Dev | #images
 
     def __init__(self, bot):
+        logging.basicConfig(level=logging.INFO, format='%(asctime)-15s %(message)s')
         self.bot = bot
         self.debug_mode = False
 
@@ -31,6 +36,8 @@ class Challenges(commands.Cog):
         self.authors = self.author_data.get('authors')
 
         self._init_challenges()
+        self._init_rewards()
+        self._init_punishments()
 
 
     @staticmethod
@@ -48,17 +55,26 @@ class Challenges(commands.Cog):
 
 
     def _init_challenges(self):
-        self.challenges = self.read_json(self.PATH_CHALLENGES)
+        self.challenges_data = self.read_json(self.PATH_CHALLENGES)
+        self.challenges = self.challenges_data.get('tasks')
 
-        self.title = self.challenges.get('title', 'MistressSyn Challenges')
-        self.host = self.challenges.get("host", 'House of Chastity')
-        self.year = self.challenges.get('year', 2019)
-        self.subtitle = self.challenges.get('subtitle', 'Daily Challenge')
-        self.emoji = self.challenges.get('emoji', 'lock')
-        self.thumbnail = self.challenges.get('thumbnail')
-        self.desc = self.challenges.get('description', 'Enter description')
+        self.title = self.challenges_data.get('title', 'MistressSyn Challenges')
+        self.host = self.challenges_data.get("host", 'House of Chastity')
+        self.year = self.challenges_data.get('year', 2019)
+        self.subtitle = self.challenges_data.get('subtitle', 'Daily Challenge')
+        self.emoji = self.challenges_data.get('emoji', 'lock')
+        self.thumbnail = self.challenges_data.get('thumbnail')
+        self.desc = self.challenges_data.get('description', 'Enter description')
 
-        self.tasks = self.challenges.get('tasks')
+
+    def _init_rewards(self):
+        self.rewards_data = self.read_json(self.PATH_REWARDS)
+        self.rewards = self.rewards_data.get('rewards')
+
+
+    def _init_punishments(self):
+        self.punishments_data = self.read_json(self.PATH_PUNISHMENTS)
+        self.punishments = self.punishments_data.get('punishments')
 
 
    #  @commands.Cog.listener()
@@ -147,6 +163,7 @@ class Challenges(commands.Cog):
             'points' : 0
         }
         self.user_data[user_id] = def_user
+        logging.info(f'New user was registerd:{def_user}')
         self._output_user_data()
 
 
@@ -188,6 +205,25 @@ class Challenges(commands.Cog):
     #         await ctx.send(f"{attr} : {attrs[attr]}")
 
 
+    def _add_user(self, user):
+        user_id = str(user.id)
+        def_user = {
+            'name' : user.name,
+            'discriminator' : user.discriminator,
+            'nick' : user.nick,
+            'cur_challenge' : None,
+            'points' : 0
+        }
+        self.user_data[user_id] = def_user
+        logging.info(f'New user was registerd:{def_user}')
+        self._output_user_data()
+
+
+    def _del_user(self, user):
+        user_id = str(user.id)
+        del self.user_data[user_id]
+        self._output_user_data()
+
     @commands.command()
     async def register(self, ctx):
         """
@@ -199,21 +235,21 @@ class Challenges(commands.Cog):
             return False
 
         self._add_user(user)
-        await ctx.send('Registered!')
+        await ctx.send(f'{ctx.author.mention}, you have been registered!')
 
 
-    # @commands.command()
-    # async def deregister(self, ctx):
-    #     """
-    #     Deregisters a discord user with the bot
-    #     """
-    #     user = ctx.message.author
-    #     if not str(user.id) in self.user_data.keys():
-    #         await ctx.send('You are not registerd yet!')
-    #         return False
+    @commands.command()
+    async def deregister(self, ctx):
+        """
+        Deregisters a discord user with the bot
+        """
+        user = ctx.message.author
+        if not str(user.id) in self.user_data.keys():
+            await ctx.send(f'{ctx.author.mention}, you are not registerd yet!')
+            return False
 
-    #     self._del_user(user)
-    #     await ctx.send('De-registered!')
+        self._del_user(user)
+        await ctx.send(f'{ctx.author.mention}, you have been de-registered!')
 
 
     def _set_user_challenge(self, user_id, challenge):
@@ -270,6 +306,8 @@ class Challenges(commands.Cog):
         embed.set_thumbnail(url=thumbnail)
 
         image = challenge.get('image', None)
+        if isinstance(image, list):
+            image = random.choice(image)
         if image:
             embed.set_image(url=image)
 
@@ -313,15 +351,15 @@ class Challenges(commands.Cog):
             await ctx.send(self._msg_has_challenge(ctx.author.mention))
             return False
 
-        # challenge = random.choice(self.tasks)
+        # challenge = random.choice(self.challenges)
         if idx and self._is_admin(ctx):
             try:
                 idx = int(idx) - 1
             except ValueError:
-                idx = random.randint(0, len(self.tasks))
+                idx = random.randint(0, len(self.challenges))
         else:
-            idx = random.randint(0, len(self.tasks))
-        challenge = self.tasks[idx]
+            idx = random.randint(0, len(self.challenges))
+        challenge = self.challenges[idx]
 
         self._set_user_challenge(user_id, challenge)
 
@@ -329,20 +367,42 @@ class Challenges(commands.Cog):
         await ctx.channel.send(msg, embed=embed)
 
 
-    # @commands.command(aliases=['p'])
-    # async def punish(self, ctx):
-    #     """
-    #     Request a random punishment
-    #     """
-    #     await ctx.channel.send(f"{ctx.author.mention} must be punished!")
+    @commands.command(aliases=['p'])
+    async def punish(self, ctx, idx=None):
+        """
+        Request a random punishment
+        """
+        if idx and self._is_admin(ctx):
+            try:
+                idx = int(idx) - 1
+            except ValueError:
+                idx = random.randint(0, len(self.punishments))
+        else:
+            idx = random.randint(0, len(self.punishments))
+        punishment = self.punishments[idx]
+
+        # await ctx.channel.send(f"{ctx.author.mention} must be punished!")
+        msg, embed = self._show_challenge(ctx, idx, punishment, user=ctx.message.author)
+        await ctx.channel.send(msg, embed=embed)
 
 
-    # @commands.command(aliases=['r'])
-    # async def reward(self, ctx):
-    #     """
-    #     Request a random reward
-    #     """
-    #     await ctx.channel.send(f"{ctx.author.mention} will be rewarded!")
+    @commands.command(aliases=['r'])
+    async def reward(self, ctx, idx=None):
+        """
+        Request a random reward
+        """
+        if idx and self._is_admin(ctx):
+            try:
+                idx = int(idx) - 1
+            except ValueError:
+                idx = random.randint(0, len(self.rewards))
+        else:
+            idx = random.randint(0, len(self.rewards))
+        reward = self.rewards[idx]
+
+        # await ctx.channel.send(f"{ctx.author.mention} will be rewarded!")
+        msg, embed = self._show_challenge(ctx, idx, reward, user=ctx.message.author)
+        await ctx.channel.send(msg, embed=embed)
 
 
     def _get_points(self, user_id):

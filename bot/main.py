@@ -11,8 +11,6 @@ from discord.ext import commands
 
 
 BASE_PATH = Path(__file__).parent
-# FILEPATH_DATA = os.path.join(DIR, 'data')
-# FILEPATH_COGS = os.path.join(DIR, 'cogs')
 
 
 def config_load():
@@ -24,13 +22,13 @@ def config_load():
 
 async def run():
     """
-    Where the bot gets started. If you wanted to create an database connection pool or other session for the bot to use,
-    it's recommended that you create it here and pass it to the bot as a kwarg.
+    Where the bot gets started. If you wanted to create an database connection
+    pool or other session for the bot to use, it's recommended that you create
+    it here and pass it to the bot as a kwarg.
     """
 
     config = config_load()
-    bot = Bot(config=config,
-              description=config['description'])
+    bot = Bot(config=config, description=config['description'])
     try:
         await bot.start(config['token'])
     except KeyboardInterrupt:
@@ -49,6 +47,8 @@ class Bot(commands.Bot):
 
         self.loop.create_task(self.track_start())
         self.loop.create_task(self.load_all_extensions())
+
+        logging.basicConfig(level=logging.INFO, format='%(asctime)-15s %(message)s')
 
 
     async def track_start(self):
@@ -116,7 +116,5 @@ class Bot(commands.Bot):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-
     loop = asyncio.get_event_loop()
     loop.run_until_complete(run())
